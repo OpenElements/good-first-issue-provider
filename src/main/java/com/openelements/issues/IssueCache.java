@@ -15,10 +15,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class IssueCache {
 
-    private final static String GOOD_FIRST_ISSUE = "good first issue";
-
-    private final static String GOOD_FIRST_ISSUE_CANDIDATE = "good first issue candidate";
-
     private final static Duration CACHE_DURATION = Duration.ofMinutes(5);
 
     private final static Logger log = org.slf4j.LoggerFactory.getLogger(IssueCache.class);
@@ -32,8 +28,10 @@ public class IssueCache {
         this.gitHubClient = Objects.requireNonNull(gitHubClient, "gitHubClient must not be null");
         this.cache = new ConcurrentHashMap<>();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-                properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), GOOD_FIRST_ISSUE));
-                properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), GOOD_FIRST_ISSUE_CANDIDATE));
+            properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), LabelConstants.GOOD_FIRST_ISSUE_LABEL));
+            properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), LabelConstants.GOOD_FIRST_ISSUE_CANDIDATE_LABEL));
+            properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), LabelConstants.HACKTOBERFEST_LABEL));
+            properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), LabelConstants.HELP_WANTED_LABEL));
         }, 0, CACHE_DURATION.getSeconds(), TimeUnit.SECONDS);
     }
 

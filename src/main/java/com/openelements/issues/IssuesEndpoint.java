@@ -14,10 +14,6 @@ public class IssuesEndpoint {
 
     private final IssueCache issueCache;
 
-    private final static String GOOD_FIRST_ISSUE = "good first issue";
-
-    private final static String GOOD_FIRST_ISSUE_CANDIDATE = "good first issue candidate";
-
     public IssuesEndpoint(@NonNull final IssueCache issueCache) {
         this.issueCache = Objects.requireNonNull(issueCache, "issueCache must not be null");
     }
@@ -25,12 +21,24 @@ public class IssuesEndpoint {
     @GetMapping("/api/good-first-issues")
     public List<Issue> getGoodFirstIssues() {
         log.info("Getting good first issues");
-        return issueCache.getIssues(GOOD_FIRST_ISSUE);
+        return issueCache.getIssues(LabelConstants.GOOD_FIRST_ISSUE_LABEL);
     }
 
     @GetMapping("/api/good-first-issue-candidates")
     public List<Issue> getGoodFirstIssuesCandidates() {
         log.info("Getting good first issue candidates");
-        return issueCache.getIssues(GOOD_FIRST_ISSUE_CANDIDATE);
+        return issueCache.getIssues(LabelConstants.GOOD_FIRST_ISSUE_CANDIDATE_LABEL);
+    }
+
+    @GetMapping("/api/hacktoberfest-issues")
+    public List<Issue> getHacktoberfestIssues() {
+        log.info("Getting Hacktoberfest issues");
+        return issueCache.getIssues(LabelConstants.HACKTOBERFEST_LABEL);
+    }
+
+    @GetMapping("/api/help-wanted-issues")
+    public List<Issue> getHelpWantedIssues() {
+        log.info("Getting help wanted issues");
+        return issueCache.getIssues(LabelConstants.HELP_WANTED_LABEL);
     }
 }
