@@ -6,7 +6,7 @@
     <title>GitHub Issues Table</title>
     <script src="https://cdn.tailwindcss.com"></script> <!-- Load Tailwind CSS -->
 </head>
-<body class="bg-gray-100">
+<body>
 
 <div class="container mx-auto py-10">
     <h1 class="text-3xl font-bold mb-6 text-center">Hiero Good First Issues</h1>
@@ -15,22 +15,8 @@
         <!-- Loading Text -->
         <div id="loading" class="text-center text-xl text-gray-700">LOADING...</div>
 
-        <!-- Table for Issues -->
-        <div id="table-container" class="overflow-x-auto hidden">
-            <table class="min-w-full bg-white border border-gray-200">
-                <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-6 py-3 border-b text-left">Title</th>
-                    <th class="px-6 py-3 border-b text-left">Languages</th>
-                    <th class="px-6 py-3 border-b text-left">Repository</th>
-                    <th class="px-6 py-3 border-b text-left">Link</th>
-                </tr>
-                </thead>
-                <tbody id="issues-table-body">
-                <!-- Issues will be loaded here by JavaScript -->
-                </tbody>
-            </table>
-        </div>
+        <ul id="issues-list" class="divide-y divide-gray-100 hidden">
+        </ul>
     </div>
 </div>
 
@@ -44,8 +30,8 @@
 
   // Function to render issues into the table
   function renderIssues(issues) {
-    const tableBody = document.getElementById('issues-table-body');
-    tableBody.innerHTML = ''; // Clear any existing rows
+    const list = document.getElementById('issues-list');
+    list.innerHTML = ''; // Clear any existing rows
 
     issues.forEach(issue => {
       if(issue.isAssigned) {
@@ -54,21 +40,34 @@
       if(issue.isClosed) {
         return;
       }
-      const row = document.createElement('tr');
-      row.innerHTML = `
-                    <td class="px-6 py-4 border-b">${issue.title}</td>
-                    <td class="px-6 py-4 border-b">${issue.languageTags.map(tag => tag).join(', ')}</td>
-                    <td class="px-6 py-4 border-b"><a href="https://github.com/${issue.org}/${issue.repo}" class="text-blue-600 hover:underline" target="_blank">${issue.repo}</a></td>
-                    <td class="px-6 py-4 border-b"><a href="${issue.html_url}" class="text-blue-600 hover:underline" target="_blank">View Issue</a></td>
+      const listItem = document.createElement('li');
+      listItem.className = 'flex justify-between gap-x-6 py-5';
+
+      listItem.innerHTML = `
+                     <div class="flex min-w-0 gap-x-4">
+                        <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="${issue.imageUrl}" alt="">
+                        <div class="min-w-0 flex-auto">
+                            <p class="text-sm font-semibold leading-6 text-gray-900">${issue.title}</p>
+                            <p class="mt-1 truncate text-xs leading-5 text-gray-500"><a href="https://github.com/${issue.org}/${issue.repo}" class="text-blue-600 hover:underline" target="_blank">${issue.repo}</a></p>
+                        </div>
+                    </div>
+                    <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+                        <p class="text-sm leading-6 text-gray-900">
+                        ${issue.languageTags.map(tag => `
+                        <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">${tag}</span>
+                        `).join('')}
+                        </p>
+                        <a href="${issue.link}" class="text-blue-600 hover:underline mt-1 text-xs leading-5" target="_blank">View Issue</a>
+                    </div>
                 `;
-      tableBody.appendChild(row);
+      list.appendChild(listItem);
     });
   }
 
   // Load issues on page load
   document.addEventListener('DOMContentLoaded', async () => {
     const loadingElement = document.getElementById('loading');
-    const tableContainer = document.getElementById('table-container');
+    const tableContainer = document.getElementById('issues-list');
 
     try {
       const issues = await fetchIssues();

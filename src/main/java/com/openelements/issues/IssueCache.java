@@ -1,37 +1,62 @@
 package com.openelements.issues;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
 public class IssueCache {
 
-    private Map<String, List<Issue>> cache;
+    private final static String GOOD_FIRST_ISSUE = "good first issue";
 
-    private Map<String, LocalDateTime> cacheTime;
+    private final static String GOOD_FIRST_ISSUE_CANDIDATE = "good first issue candidate";
 
-    public IssueCache() {
-        this.cache = new HashMap<>();
-        cacheTime = new HashMap<>();
+    private final static Duration CACHE_DURATION = Duration.ofSeconds(60);
+
+    private final GitHubClient gitHubClient;
+
+    private final Map<String, List<Issue>> cache;
+
+    private final Map<String, List<Issue>> forLabelCache;
+
+    public IssueCache(@NonNull final IssueServiceProperties properties, final GitHubClient gitHubClient) {
+        this.cache = new ConcurrentHashMap<>();
+        this.forLabelCache = new ConcurrentHashMap<>();
+
+        this.gitHubClient = Objects.requireNonNull(gitHubClient, "gitHubClient must not be null");
+
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+                properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), GOOD_FIRST_ISSUE));
+                properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), GOOD_FIRST_ISSUE_CANDIDATE));
+        }, 0, CACHE_DURATION.getSeconds(), TimeUnit.SECONDS);
     }
 
-    public void setIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label, @NonNull final List<Issue> issues) {
+    private void update(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {
+        final List<Issue> issues = gitHubClient.getIssues(org, repo, label);
+        setIssues(org, repo, label, issues);
+    }
+
+    private void setIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label, @NonNull final List<Issue> issues) {
         Objects.requireNonNull(issues, "issues must not be null");
         cache.put(hash(org, repo, label), issues);
-        cacheTime.put(hash(org, repo, label), LocalDateTime.now());
+        forLabelCache.computeIfAbsent(label, l -> new CopyOnWriteArrayList<>()).addAll(issues);
+    }
+
+    public List<Issue> getIssues(@NonNull final String label) {
+        return forLabelCache.getOrDefault(label, List.of());
     }
 
     public List<Issue> getIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {
         return cache.getOrDefault(hash(org, repo, label), List.of());
-    }
-
-    public LocalDateTime getCacheTime(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {
-        return cacheTime.getOrDefault(hash(org, repo, label), LocalDateTime.MIN);
     }
 
     private String hash(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {

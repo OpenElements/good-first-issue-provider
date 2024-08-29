@@ -98,13 +98,13 @@ public class GitHubClient {
                     .retrieve()
                     .toEntity(String.class);
             if(!languagesEntity.getStatusCode().is2xxSuccessful()) {
-                throw new IllegalStateException("Failed to get languages from GitHub: " + entity.getBody());
+                throw new IllegalStateException("Failed to get languages from GitHub: " + languagesEntity.getBody());
             }
             final JsonNode languagesJsonNode;
             try {
                 languagesJsonNode = objectMapper.readTree(languagesEntity.getBody());
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to parse languages from GitHub: " + entity.getBody(), e);
+                throw new IllegalStateException("Failed to parse languages from GitHub: " + languagesEntity.getBody(), e);
             }
             final List<String> fieldNames = new ArrayList<>();
             languagesJsonNode.fieldNames().forEachRemaining(fieldNames::add);
@@ -123,7 +123,22 @@ public class GitHubClient {
                 }
             });
 
-            final Issue issue = new Issue(title, url, org, repo, number, isAssigned, isClosed, languageTags);
+            final ResponseEntity<String> repoEntity = restClient.get()
+                    .uri("/repos/{org}/{repo}", org, repo)
+                    .retrieve()
+                    .toEntity(String.class);
+            if(!repoEntity.getStatusCode().is2xxSuccessful()) {
+                throw new IllegalStateException("Failed to get repo from GitHub: " + repoEntity.getBody());
+            }
+            final JsonNode repoJsonNode;
+            try {
+                repoJsonNode = objectMapper.readTree(repoEntity.getBody());
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to parse languages from GitHub: " + repoEntity.getBody(), e);
+            }
+            String imageUrl = repoJsonNode.get("owner").get("avatar_url").asText();
+
+            final Issue issue = new Issue(title, url, org, repo, imageUrl, number, isAssigned, isClosed, languageTags);
             issues.add(issue);
         });
         return Collections.unmodifiableList(issues);
