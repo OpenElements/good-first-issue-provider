@@ -33,6 +33,31 @@
     const list = document.getElementById('issues-list');
     list.innerHTML = ''; // Clear any existing rows
 
+    issues.sort((a, b) => {
+      const orgA = a.org.toLowerCase();
+      const orgB = b.org.toLowerCase();
+      const repoA = a.repo.toLowerCase();
+      const repoB = b.repo.toLowerCase();
+      const identifierA = a.identifier.toLowerCase();
+      const identifierB = b.identifier.toLowerCase();
+
+      // Compare by organization
+      if (orgA < orgB) return -1;
+      if (orgA > orgB) return 1;
+
+      // If organizations are the same, compare by repository
+      if (repoA < repoB) return -1;
+      if (repoA > repoB) return 1;
+
+      // If repositories are the same, compare by issue title
+      if (identifierA < identifierB) return -1;
+      if (identifierA > identifierB) return 1;
+
+      // All are equal
+      return 0;
+    });
+
+
     issues.forEach(issue => {
       if(issue.isAssigned) {
         return;
