@@ -4,24 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Issues Table</title>
-    <script src="https://cdn.tailwindcss.com"></script> <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script>
 </head>
 <body>
 
 <div class="container mx-auto py-10">
-    <h1 class="text-3xl font-bold mb-6 text-center">Hiero Good First Issues</h1>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl">
+            <h1 class="text-3xl font-bold mb-6 text-center">Hiero Good First Issues</h1>
 
-    <div class="container mx-auto py-10">
-        <!-- Loading Text -->
-        <div id="loading" class="text-center text-xl text-gray-700">LOADING...</div>
+            <div>
+                <label for="language-filter" class="block text-sm font-medium leading-6 text-gray-900">Filter by Language</label>
+                <select id="language-filter" name="language-filter" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                    <option value="">All Languages</option>
+                </select>
+            </div>
 
-        <ul id="issues-list" class="divide-y divide-gray-100 hidden">
-        </ul>
+            <div class="container mx-auto py-10">
+                <!-- Loading Text -->
+                <div id="loading" class="text-center text-xl text-gray-700">LOADING...</div>
+
+                <ul id="issues-list" class="divide-y divide-gray-100 hidden">
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-  // Function to fetch issues from the REST API endpoint
+
+  function populateLanguageFilter(issues) {
+    var uniqueLanguages = new Set();
+    issues.forEach(issue => {
+      issue.languageTags.forEach(language => uniqueLanguages.add(language));
+    });
+    const labelFilter = document.getElementById('language-filter');
+    labelFilter.innerHTML = '<option value="">All Languages</option>'; // Reset options
+    uniqueLanguages.forEach(label => {
+      const option = document.createElement('option');
+      option.value = label;
+      option.textContent = label;
+      labelFilter.appendChild(option);
+    });
+  }
+
+
   async function fetchIssues() {
     const response = await fetch('/good-first-issues');
     const issues = await response.json();
@@ -93,16 +120,31 @@
   document.addEventListener('DOMContentLoaded', async () => {
     const loadingElement = document.getElementById('loading');
     const tableContainer = document.getElementById('issues-list');
-
+    let issues = [];
     try {
-      const issues = await fetchIssues();
+      issues = await fetchIssues();
       renderIssues(issues);
+      populateLanguageFilter(issues);
       // Hide the loading text and show the table
       loadingElement.classList.add('hidden');
       tableContainer.classList.remove('hidden');
     } catch (error) {
       loadingElement.textContent = 'Failed to load data. Please try again later.';
     }
+
+    // Event listener to filter issues by selected label
+    document.getElementById('language-filter').addEventListener('change', function() {
+      const selectedLabel = this.value;
+      const filteredIssues = selectedLabel
+          ? issues.filter(issue => issue.languageTags.some(label => {
+            console.log('comparing' + label + ' with ' + selectedLabel);
+            return label === selectedLabel;
+          }))
+          : issues;
+      renderIssues(filteredIssues);
+    });
+
+
   });
 </script>
 
