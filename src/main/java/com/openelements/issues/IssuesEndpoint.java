@@ -22,13 +22,13 @@ public class IssuesEndpoint {
         this.issueCache = Objects.requireNonNull(issueCache, "issueCache must not be null");
     }
 
-    @GetMapping("/good-first-issues")
+    @GetMapping("/api/good-first-issues")
     public List<Issue> getGoodFirstIssues() {
         log.info("Getting good first issues");
         return issueCache.getIssues(GOOD_FIRST_ISSUE);
     }
 
-    @GetMapping("/good-first-issue-candidates")
+    @GetMapping("/api/good-first-issue-candidates")
     public List<Issue> getGoodFirstIssuesCandidates() {
         log.info("Getting good first issue candidates");
         return issueCache.getIssues(GOOD_FIRST_ISSUE_CANDIDATE);
