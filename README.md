@@ -30,15 +30,12 @@ Repositories that should be fetched can be configured in the `application.yml` f
 The following is an example configuration with 2 repositories:
 
 ```yaml
-spring:
-  hacktoberfest:
-    issues:
-      repositories:
-        - org: OpenElements
-          repo: hedera-enterprise
-        - org: OpenElements
-          repo: hedera-solo-action
-          
+hacktoberfest:
+  repositories:
+    - org: OpenElements
+      repo: hedera-enterprise
+    - org: OpenElements
+      repo: hedera-solo-action
 ```
 
 Next to the UI, the application provides a REST API to fetch the good first issues.

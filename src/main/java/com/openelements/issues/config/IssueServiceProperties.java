@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(
-        prefix = "spring.hacktoberfest.issues"
+        prefix = "hacktoberfest"
 )
 public class IssueServiceProperties {
 
