@@ -23,6 +23,9 @@ The application provides a simple UI to search for good first issues. You can ac
 
 All repositories are fetched from the GitHub API.
 The application uses the GitHub API to fetch the issues for the given repositories.
+The usage of the GitHub API is restricted to 60 requests per hour for unauthorized requests.
+If the ENV variable `GITHUB_TOKEN` is found the requests will use the token for authentification against GitHub.
+
 Repositories that should be fetched can be configured in the `application.yml` file.
 The following is an example configuration with 2 repositories:
 
