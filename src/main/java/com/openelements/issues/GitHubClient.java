@@ -29,6 +29,8 @@ public class GitHubClient {
     }
 
     public Repository getRepository(@NonNull final String org, @NonNull final String repo) {
+        Objects.requireNonNull(org, "org must not be null");
+        Objects.requireNonNull(repo, "repo must not be null");
         final ResponseEntity<String> repoEntity = restClient.get()
                 .uri("/repos/{org}/{repo}", org, repo)
                 .retrieve()
@@ -141,7 +143,7 @@ public class GitHubClient {
             }
 
 
-            final Issue issue = new Issue(title, url, repository.org(), repository.name(), repository.imageUrl(), number, isAssigned, isClosed, labels, repository.languages());
+            final Issue issue = new Issue(title, url, repository.org(), repository.name(), repository.imageUrl(), Integer.valueOf(number).toString(), isAssigned, isClosed, labels, repository.languages());
             issues.add(issue);
         });
         return Collections.unmodifiableList(issues);

@@ -28,10 +28,9 @@ public class IssueCache {
     private final Map<String, List<Issue>> cache;
 
     public IssueCache(@NonNull final IssueServiceProperties properties, final GitHubClient gitHubClient) {
-        this.cache = new ConcurrentHashMap<>();
-
+        Objects.requireNonNull(properties, "properties must not be null");
         this.gitHubClient = Objects.requireNonNull(gitHubClient, "gitHubClient must not be null");
-
+        this.cache = new ConcurrentHashMap<>();
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
                 properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), GOOD_FIRST_ISSUE));
                 properties.getRepositories().forEach(repository -> update(repository.org(), repository.repo(), GOOD_FIRST_ISSUE_CANDIDATE));
@@ -56,6 +55,7 @@ public class IssueCache {
     }
 
     public List<Issue> getIssues(@NonNull final String label) {
+        Objects.requireNonNull(label, "label must not be null");
         return cache.keySet().stream()
                 .flatMap(key -> cache.get(key).stream())
                 .filter(issue -> issue.labels().contains(label))
