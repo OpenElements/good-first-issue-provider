@@ -3,6 +3,8 @@
 A web services that provides a list of good first issues for configurable given GitHub repositories.
 The issues are provided by an REST API and in a simple UI.
 
+<img width="1206" alt="sample" src="https://github.com/user-attachments/assets/831b9e87-906b-44f8-92d5-b47064971389">
+
 ## How to run
 
 The project is a Spring Boot based webservice. To run it, you need to have Java 17 installed.
