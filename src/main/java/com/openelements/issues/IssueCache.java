@@ -58,7 +58,7 @@ public class IssueCache {
         Objects.requireNonNull(label, "label must not be null");
         return cache.keySet().stream()
                 .flatMap(key -> cache.get(key).stream())
-                .filter(issue -> issue.labels().contains(label))
+                .filter(issue -> issue.labels().stream().anyMatch(l -> l.equalsIgnoreCase(label)))
                 .collect(Collectors.toUnmodifiableSet());
     }
 
