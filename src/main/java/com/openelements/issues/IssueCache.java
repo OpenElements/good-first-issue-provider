@@ -5,9 +5,11 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
@@ -52,12 +54,12 @@ public class IssueCache {
         cache.put(hash(org, repo, label), issues);
     }
 
-    public List<Issue> getIssues(@NonNull final String label) {
+    public Set<Issue> getIssues(@NonNull final String label) {
         Objects.requireNonNull(label, "label must not be null");
         return cache.keySet().stream()
                 .flatMap(key -> cache.get(key).stream())
                 .filter(issue -> issue.labels().contains(label))
-                .toList();
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public List<Issue> getIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {

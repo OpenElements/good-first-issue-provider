@@ -2,6 +2,7 @@ package com.openelements.issues;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,25 +20,25 @@ public class IssuesEndpoint {
     }
 
     @GetMapping("/api/good-first-issues")
-    public List<Issue> getGoodFirstIssues() {
+    public Set<Issue> getGoodFirstIssues() {
         log.info("Getting good first issues");
         return issueCache.getIssues(LabelConstants.GOOD_FIRST_ISSUE_LABEL);
     }
 
     @GetMapping("/api/good-first-issue-candidates")
-    public List<Issue> getGoodFirstIssuesCandidates() {
+    public Set<Issue> getGoodFirstIssuesCandidates() {
         log.info("Getting good first issue candidates");
         return issueCache.getIssues(LabelConstants.GOOD_FIRST_ISSUE_CANDIDATE_LABEL);
     }
 
     @GetMapping("/api/hacktoberfest-issues")
-    public List<Issue> getHacktoberfestIssues() {
+    public Set<Issue> getHacktoberfestIssues() {
         log.info("Getting Hacktoberfest issues");
         return issueCache.getIssues(LabelConstants.HACKTOBERFEST_LABEL);
     }
 
     @GetMapping("/api/help-wanted-issues")
-    public List<Issue> getHelpWantedIssues() {
+    public Set<Issue> getHelpWantedIssues() {
         log.info("Getting help wanted issues");
         return issueCache.getIssues(LabelConstants.HELP_WANTED_LABEL);
     }
