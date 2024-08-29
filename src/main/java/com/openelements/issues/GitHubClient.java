@@ -7,24 +7,34 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClient.Builder;
 
 @Service
 public class GitHubClient {
+
+    private final static Logger log = LoggerFactory.getLogger(GitHubClient.class);
 
     private final RestClient restClient;
 
     private final ObjectMapper objectMapper;
 
     public GitHubClient() {
-        this.restClient = RestClient.builder()
-            .baseUrl("https://api.github.com")
-            .defaultHeader("Accept", "application/vnd.github.v3+json")
-            .defaultHeader("User-Agent", "Spring")
-            .defaultHeader("Authorization", "token " + System.getenv("GITHUB_TOKEN"))
-            .build();
+        Builder builder = RestClient.builder()
+                .baseUrl("https://api.github.com")
+                .defaultHeader("Accept", "application/vnd.github.v3+json");
+        final String githubToken = System.getenv("GITHUB_TOKEN");
+        if(githubToken != null) {
+            log.info("Using GITHUB_TOKEN environment variable for GitHub API authentication");
+            builder = builder.defaultHeader("Authorization", "token " + githubToken);
+        } else {
+            log.warn("No GITHUB_TOKEN environment variable found, GitHub API rate limits will apply");
+        }
+        restClient = builder.build();
         objectMapper = new ObjectMapper();
     }
 
