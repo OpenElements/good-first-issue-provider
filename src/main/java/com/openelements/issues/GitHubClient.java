@@ -28,13 +28,60 @@ public class GitHubClient {
         objectMapper = new ObjectMapper();
     }
 
-    public List<Issue> getIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {
-        Objects.requireNonNull(org, "org must not be null");
-        Objects.requireNonNull(repo, "repo must not be null");
+    public Repository getRepository(@NonNull final String org, @NonNull final String repo) {
+        final ResponseEntity<String> repoEntity = restClient.get()
+                .uri("/repos/{org}/{repo}", org, repo)
+                .retrieve()
+                .toEntity(String.class);
+        if(!repoEntity.getStatusCode().is2xxSuccessful()) {
+            throw new IllegalStateException("Failed to get repo from GitHub: " + repoEntity.getBody());
+        }
+        final JsonNode repoJsonNode;
+        try {
+            repoJsonNode = objectMapper.readTree(repoEntity.getBody());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to parse languages from GitHub: " + repoEntity.getBody(), e);
+        }
+        String imageUrl = repoJsonNode.get("owner").get("avatar_url").asText();
+
+        final ResponseEntity<String> languagesEntity = restClient.get()
+                .uri("/repos/{org}/{repo}/languages", org, repo)
+                .retrieve()
+                .toEntity(String.class);
+        if(!languagesEntity.getStatusCode().is2xxSuccessful()) {
+            throw new IllegalStateException("Failed to get languages from GitHub: " + languagesEntity.getBody());
+        }
+        final JsonNode languagesJsonNode;
+        try {
+            languagesJsonNode = objectMapper.readTree(languagesEntity.getBody());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to parse languages from GitHub: " + languagesEntity.getBody(), e);
+        }
+        final List<String> fieldNames = new ArrayList<>();
+        languagesJsonNode.fieldNames().forEachRemaining(fieldNames::add);
+
+        final int languageSum = fieldNames
+                .stream()
+                .mapToInt(fieldName -> languagesJsonNode.get(fieldName).asInt())
+                .sum();
+
+        final List<String> languageTags = new ArrayList<>();
+        fieldNames.forEach(fieldName -> {
+            final int count = languagesJsonNode.get(fieldName).asInt();
+            final double percentage = (double) count / languageSum * 100;
+            if(percentage > 33.0) {
+                languageTags.add(fieldName);
+            }
+        });
+        return new Repository(org, repo, imageUrl, languageTags);
+    }
+
+    public List<Issue> getIssues(@NonNull final Repository repository, @NonNull final String label) {
+        Objects.requireNonNull(repository, "repository must not be null");
         Objects.requireNonNull(label, "label must not be null");
         final List<Issue> issues = new ArrayList<>();
         final ResponseEntity<String> entity = restClient.get()
-                .uri("/repos/{org}/{repo}/issues?labels={label}", org, repo, label)
+                .uri("/repos/{org}/{repo}/issues?labels={label}", repository.org(), repository.name(), label)
                 .retrieve()
                 .toEntity(String.class);
         if(!entity.getStatusCode().is2xxSuccessful()) {
@@ -93,52 +140,8 @@ public class GitHubClient {
                 });
             }
 
-            final ResponseEntity<String> languagesEntity = restClient.get()
-                    .uri("/repos/{org}/{repo}/languages", org, repo)
-                    .retrieve()
-                    .toEntity(String.class);
-            if(!languagesEntity.getStatusCode().is2xxSuccessful()) {
-                throw new IllegalStateException("Failed to get languages from GitHub: " + languagesEntity.getBody());
-            }
-            final JsonNode languagesJsonNode;
-            try {
-                languagesJsonNode = objectMapper.readTree(languagesEntity.getBody());
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to parse languages from GitHub: " + languagesEntity.getBody(), e);
-            }
-            final List<String> fieldNames = new ArrayList<>();
-            languagesJsonNode.fieldNames().forEachRemaining(fieldNames::add);
 
-            final int languageSum = fieldNames
-                    .stream()
-                    .mapToInt(fieldName -> languagesJsonNode.get(fieldName).asInt())
-                    .sum();
-
-            final List<String> languageTags = new ArrayList<>();
-            fieldNames.forEach(fieldName -> {
-                final int count = languagesJsonNode.get(fieldName).asInt();
-                final double percentage = (double) count / languageSum * 100;
-                if(percentage > 33.0) {
-                    languageTags.add(fieldName);
-                }
-            });
-
-            final ResponseEntity<String> repoEntity = restClient.get()
-                    .uri("/repos/{org}/{repo}", org, repo)
-                    .retrieve()
-                    .toEntity(String.class);
-            if(!repoEntity.getStatusCode().is2xxSuccessful()) {
-                throw new IllegalStateException("Failed to get repo from GitHub: " + repoEntity.getBody());
-            }
-            final JsonNode repoJsonNode;
-            try {
-                repoJsonNode = objectMapper.readTree(repoEntity.getBody());
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to parse languages from GitHub: " + repoEntity.getBody(), e);
-            }
-            String imageUrl = repoJsonNode.get("owner").get("avatar_url").asText();
-
-            final Issue issue = new Issue(title, url, org, repo, imageUrl, number, isAssigned, isClosed, labels, languageTags);
+            final Issue issue = new Issue(title, url, repository.org(), repository.name(), repository.imageUrl(), number, isAssigned, isClosed, labels, repository.languages());
             issues.add(issue);
         });
         return Collections.unmodifiableList(issues);
