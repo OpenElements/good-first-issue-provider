@@ -1,8 +1,6 @@
 package com.openelements.issues;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,11 +24,8 @@ public class IssueCache {
 
     private final Map<String, List<Issue>> cache;
 
-    private final Map<String, List<Issue>> forLabelCache;
-
     public IssueCache(@NonNull final IssueServiceProperties properties, final GitHubClient gitHubClient) {
         this.cache = new ConcurrentHashMap<>();
-        this.forLabelCache = new ConcurrentHashMap<>();
 
         this.gitHubClient = Objects.requireNonNull(gitHubClient, "gitHubClient must not be null");
 
@@ -48,11 +43,13 @@ public class IssueCache {
     private void setIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label, @NonNull final List<Issue> issues) {
         Objects.requireNonNull(issues, "issues must not be null");
         cache.put(hash(org, repo, label), issues);
-        forLabelCache.computeIfAbsent(label, l -> new CopyOnWriteArrayList<>()).addAll(issues);
     }
 
     public List<Issue> getIssues(@NonNull final String label) {
-        return forLabelCache.getOrDefault(label, List.of());
+        return cache.keySet().stream()
+                .flatMap(key -> cache.get(key).stream())
+                .filter(issue -> issue.labels().contains(label))
+                .toList();
     }
 
     public List<Issue> getIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {

@@ -138,7 +138,7 @@ public class GitHubClient {
             }
             String imageUrl = repoJsonNode.get("owner").get("avatar_url").asText();
 
-            final Issue issue = new Issue(title, url, org, repo, imageUrl, number, isAssigned, isClosed, languageTags);
+            final Issue issue = new Issue(title, url, org, repo, imageUrl, number, isAssigned, isClosed, labels, languageTags);
             issues.add(issue);
         });
         return Collections.unmodifiableList(issues);
