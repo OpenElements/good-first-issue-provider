@@ -1,6 +1,8 @@
 package com.openelements.issues;
 
-import java.util.List;
+import com.openelements.issues.data.Contributor;
+import com.openelements.issues.data.Issue;
+import com.openelements.issues.services.GitHubCache;
 import java.util.Objects;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
@@ -9,13 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class IssuesEndpoint {
+public class ApiEndpoint {
 
-    private final static Logger log = org.slf4j.LoggerFactory.getLogger(IssuesEndpoint.class);
+    private final static Logger log = org.slf4j.LoggerFactory.getLogger(ApiEndpoint.class);
 
-    private final IssueCache issueCache;
+    private final GitHubCache issueCache;
 
-    public IssuesEndpoint(@NonNull final IssueCache issueCache) {
+    public ApiEndpoint(@NonNull final GitHubCache issueCache) {
         this.issueCache = Objects.requireNonNull(issueCache, "issueCache must not be null");
     }
 
@@ -42,4 +44,11 @@ public class IssuesEndpoint {
         log.info("Getting help wanted issues");
         return issueCache.getIssues(LabelConstants.HELP_WANTED_LABEL);
     }
+
+    @GetMapping("/api/contributors")
+    public Set<Contributor> getContributors() {
+        log.info("Getting contributors");
+        return issueCache.getContributors();
+    }
+
 }

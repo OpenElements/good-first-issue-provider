@@ -1,7 +1,10 @@
-package com.openelements.issues;
+package com.openelements.issues.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openelements.issues.data.Contributor;
+import com.openelements.issues.data.Issue;
+import com.openelements.issues.data.Repository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -158,4 +161,65 @@ public class GitHubClient {
         });
         return Collections.unmodifiableList(issues);
     }
+
+    public List<Contributor> getContributors(@NonNull final Repository repository) {
+        return getContributors(repository, 0);
+    }
+
+    public List<Contributor> getContributors(@NonNull final Repository repository, final int page) {
+        Objects.requireNonNull(repository, "repository must not be null");
+        if(page < 0) {
+            throw new IllegalArgumentException("page must be greater than or equal to 0");
+        }
+
+        List<Contributor> contributors = new ArrayList<>();
+
+        final ResponseEntity<String> entity = restClient.get()
+                .uri("/repos/{org}/{repo}/contributors?per_page=100&page={page}", repository.org(), repository.name(), page)
+                .retrieve()
+                .toEntity(String.class);
+        if(!entity.getStatusCode().is2xxSuccessful()) {
+            throw new IllegalStateException("Failed to get issues from GitHub: " + entity.getBody());
+        }
+        final JsonNode jsonNode;
+        try {
+            jsonNode = objectMapper.readTree(entity.getBody());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to parse issues from GitHub: " + entity.getBody(), e);
+        }
+        if(!jsonNode.isArray()) {
+            throw new IllegalStateException("Expected an array of issues from GitHub, but got: " + entity.getBody());
+        }
+
+        jsonNode.forEach(contributorNode -> {
+            if(!contributorNode.has("login")) {
+                throw new IllegalStateException("Expected a contributor to have a login, but got: " + contributorNode);
+            }
+            final JsonNode loginNode = contributorNode.get("login");
+            if(!loginNode.isTextual()) {
+                throw new IllegalStateException("Expected a contributor's login to be a string, but got: " + loginNode);
+            }
+            final String userName = loginNode.asText();
+
+            if(!contributorNode.has("avatar_url")) {
+                throw new IllegalStateException("Expected a avatar_url to have an contributions, but got: " + contributorNode);
+            }
+            final JsonNode avatarUrlNode = contributorNode.get("avatar_url");
+            if(!avatarUrlNode.isTextual()) {
+                throw new IllegalStateException("Expected a contributor's avatar_url to be a string, but got: " + avatarUrlNode);
+            }
+            final String avatarUrl = avatarUrlNode.asText();
+
+            final Contributor contributor = new Contributor(userName, avatarUrl);
+            contributors.add(contributor);
+        });
+
+
+        if(!contributors.isEmpty()) {
+            List<Contributor> nextContributors = getContributors(repository, page + 1);
+            contributors.addAll(nextContributors);
+        }
+        return Collections.unmodifiableList(contributors);
+    }
+
 }

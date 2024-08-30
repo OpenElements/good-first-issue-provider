@@ -1,4 +1,4 @@
-package com.openelements.issues;
+package com.openelements.issues.data;
 
 import java.util.List;
 import java.util.Objects;
