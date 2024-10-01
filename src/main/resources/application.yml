@@ -30,5 +30,7 @@ hacktoberfest:
         repo: hedera-enterprise
       - org: OpenElements
         repo: hedera-solo-action
+      - org: LFDT-Hiero
+        repo: website
 
 
