@@ -24,6 +24,8 @@ hacktoberfest:
         repo: hedera-sdk-cpp
       - org: hashgraph
         repo: solo
+      - org: hashgraph
+        repo: hedera-sdk-tck
       - org: OpenElements
         repo: hedera-enterprise
       - org: OpenElements

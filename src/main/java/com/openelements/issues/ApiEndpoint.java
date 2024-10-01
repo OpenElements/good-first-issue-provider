@@ -7,10 +7,12 @@ import java.util.Objects;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CrossOrigin
 public class ApiEndpoint {
 
     private final static Logger log = org.slf4j.LoggerFactory.getLogger(ApiEndpoint.class);
