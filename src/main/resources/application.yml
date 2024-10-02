@@ -32,5 +32,7 @@ hacktoberfest:
         repo: hedera-solo-action
       - org: LFDT-Hiero
         repo: website
+      - org: LFDT-Hiero
+        repo: awesome-contributions
 
 
