@@ -1,7 +1,12 @@
 package com.openelements.issues.services;
 
-import com.openelements.issues.LabelConstants;
+import static com.openelements.issues.LabelConstants.GOOD_FIRST_ISSUE_CANDIDATE_LABEL;
+import static com.openelements.issues.LabelConstants.GOOD_FIRST_ISSUE_LABEL;
+import static com.openelements.issues.LabelConstants.HACKTOBERFEST_LABEL;
+import static com.openelements.issues.LabelConstants.HELP_WANTED_LABEL;
+
 import com.openelements.issues.config.IssueServiceProperties;
+import com.openelements.issues.config.RepositoryProperty;
 import com.openelements.issues.data.Contributor;
 import com.openelements.issues.data.Issue;
 import com.openelements.issues.data.Repository;
@@ -36,13 +41,20 @@ public class GitHubCache {
         this.gitHubClient = Objects.requireNonNull(gitHubClient, "gitHubClient must not be null");
         this.issuesCache = new ConcurrentHashMap<>();
         this.contributorsCache = new ConcurrentHashMap<>();
+        log.info("Cache will be updated all {} seconds", CACHE_DURATION.getSeconds());
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            properties.getRepositories().forEach(repository -> updateContributors(repository.org(), repository.repo()));
-
-            properties.getRepositories().forEach(repository -> updateIssues(repository.org(), repository.repo(), LabelConstants.GOOD_FIRST_ISSUE_LABEL));
-            properties.getRepositories().forEach(repository -> updateIssues(repository.org(), repository.repo(), LabelConstants.GOOD_FIRST_ISSUE_CANDIDATE_LABEL));
-            properties.getRepositories().forEach(repository -> updateIssues(repository.org(), repository.repo(), LabelConstants.HACKTOBERFEST_LABEL));
-            properties.getRepositories().forEach(repository -> updateIssues(repository.org(), repository.repo(), LabelConstants.HELP_WANTED_LABEL));
+            try {
+                log.info("Updating cache");
+                final List<RepositoryProperty> repos = properties.getRepositories();
+                repos.forEach(repo -> updateContributors(repo.org(), repo.repo()));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), GOOD_FIRST_ISSUE_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), GOOD_FIRST_ISSUE_CANDIDATE_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), HACKTOBERFEST_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), HELP_WANTED_LABEL));
+                log.info("Cache updated. Found {} contributors and {} issues", getContributors().size(), getAllIssues().size());
+            } catch (final Exception e) {
+                log.error("Failed to update cache", e);
+            }
         }, 0, CACHE_DURATION.getSeconds(), TimeUnit.SECONDS);
     }
 
@@ -68,6 +80,12 @@ public class GitHubCache {
         } catch (final Exception e) {
             log.error("Failed to update issue cache for repo '" + org + "/" + repo + "' and label '" + label + "'", e);
         }
+    }
+
+    public Set<Issue> getAllIssues() {
+        return issuesCache.keySet().stream()
+                .flatMap(key -> issuesCache.get(key).stream())
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public Set<Issue> getIssues(@NonNull final String label) {

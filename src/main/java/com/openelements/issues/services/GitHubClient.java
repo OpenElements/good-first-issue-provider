@@ -21,6 +21,10 @@ import org.springframework.web.client.RestClient.Builder;
 public class GitHubClient {
 
     private final static Logger log = LoggerFactory.getLogger(GitHubClient.class);
+    public static final String GITHUB_TOKEN = "GITHUB_TOKEN";
+    public static final String GITHUB_API_URL = "https://api.github.com";
+    public static final String HTTP_ACCEPT = "Accept";
+    public static final String GITHUB_V_3_JSON = "application/vnd.github.v3+json";
 
     private final RestClient restClient;
 
@@ -28,14 +32,14 @@ public class GitHubClient {
 
     public GitHubClient() {
         Builder builder = RestClient.builder()
-                .baseUrl("https://api.github.com")
-                .defaultHeader("Accept", "application/vnd.github.v3+json");
-        final String githubToken = System.getenv("GITHUB_TOKEN");
+                .baseUrl(GITHUB_API_URL)
+                .defaultHeader(HTTP_ACCEPT, GITHUB_V_3_JSON);
+        final String githubToken = System.getenv(GITHUB_TOKEN);
         if(githubToken != null) {
-            log.info("Using GITHUB_TOKEN environment variable for GitHub API authentication");
+            log.info("Using {} environment variable for GitHub API authentication", GITHUB_TOKEN);
             builder = builder.defaultHeader("Authorization", "token " + githubToken);
         } else {
-            log.warn("No GITHUB_TOKEN environment variable found, GitHub API rate limits will apply");
+            log.warn("{} environment variable found, GitHub API rate limits will apply", GITHUB_TOKEN);
         }
         restClient = builder.build();
         objectMapper = new ObjectMapper();
