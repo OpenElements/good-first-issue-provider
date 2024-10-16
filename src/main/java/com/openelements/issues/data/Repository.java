@@ -14,7 +14,6 @@ public record Repository(@NonNull String org, @NonNull String name, @NonNull Str
         this.imageUrl = Objects.requireNonNull(imageUrl, "imageUrl must not be null");
         Objects.requireNonNull(languages, "languages must not be null");
         this.languages = List.copyOf(languages);
-
         if (org.isBlank()) {
             throw new IllegalArgumentException("org is required");
         }

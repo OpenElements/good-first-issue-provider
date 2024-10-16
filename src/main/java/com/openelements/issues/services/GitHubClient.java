@@ -160,7 +160,7 @@ public class GitHubClient {
             }
 
 
-            final Issue issue = new Issue(title, url, repository.org(), repository.name(), repository.imageUrl(), Integer.valueOf(number).toString(), isAssigned, isClosed, labels, repository.languages());
+            final Issue issue = new Issue(title, Integer.valueOf(number).toString(), repository, url, isAssigned, isClosed, labels);
             issues.add(issue);
         });
         return Collections.unmodifiableList(issues);
