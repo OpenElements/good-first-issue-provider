@@ -1,0 +1,38 @@
+server:
+  port=${PORT:8080}
+hacktoberfest:
+    repositories:
+      - org: hashgraph
+        repo: hedera-services
+      - org: hashgraph
+        repo: hedera-json-rpc-relay
+      - org: hashgraph
+        repo: hedera-local-node
+      - org: hashgraph
+        repo: hedera-mirror-node
+      - org: hashgraph
+        repo: hedera-sdk-js
+      - org: hashgraph
+        repo: hedera-sdk-swift
+      - org: hashgraph
+        repo: hedera-sdk-rust
+      - org: hashgraph
+        repo: hedera-sdk-java
+      - org: hashgraph
+        repo: hedera-sdk-go
+      - org: hashgraph
+        repo: hedera-sdk-cpp
+      - org: hashgraph
+        repo: solo
+      - org: hashgraph
+        repo: hedera-sdk-tck
+      - org: OpenElements
+        repo: hedera-enterprise
+      - org: OpenElements
+        repo: hedera-solo-action
+      - org: LFDT-Hiero
+        repo: website
+      - org: LFDT-Hiero
+        repo: awesome-contributions
+
+
