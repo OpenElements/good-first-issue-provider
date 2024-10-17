@@ -33,7 +33,11 @@ public class ApiEndpoint {
     }
 
     @GetMapping("/api/v2/issues")
-    public Set<Issue> getIssues(@PathVariable(required = false) Boolean isAssigned, @PathVariable(required = false) Boolean isClosed, @PathVariable(required = false) Set<String> filteredLabels, @PathVariable(required = false) Set<String> excludedLabels, @PathVariable(required = false) Set<String> filteredLanguages) {
+    public Set<Issue> getIssues(@PathVariable(name = "isAssigned", required = false) Boolean isAssigned,
+                                @PathVariable(name = "isClosed",required = false) Boolean isClosed,
+                                @PathVariable(name = "filteredLabels",required = false) Set<String> filteredLabels,
+                                @PathVariable(name = "excludedLabels",required = false) Set<String> excludedLabels,
+                                @PathVariable(name = "filteredLanguages",required = false) Set<String> filteredLanguages) {
         log.info("Getting good first issues");
         return issueCache.getAllIssues().stream()
                 .filter(issue -> isAssigned == null || issue.isAssigned() == isAssigned)
