@@ -27,7 +27,7 @@
 <script>
 
   async function fetchContributors() {
-    const response = await fetch('/api/contributors');
+    const response = await fetch('/api/v2/contributors');
     const contributors = await response.json();
     return contributors;
   }
