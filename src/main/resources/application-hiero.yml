@@ -25,14 +25,22 @@ hacktoberfest:
       - org: hashgraph
         repo: solo
       - org: hashgraph
+        repo: pbj
+      - org: hashgraph
+        repo: docs
+      - org: hashgraph
+        repo: hedera-mirror-node-explorer
+      - org: hashgraph
         repo: hedera-sdk-tck
       - org: OpenElements
         repo: hedera-enterprise
       - org: OpenElements
         repo: hedera-solo-action
-      - org: LFDT-Hiero
-        repo: website
-      - org: LFDT-Hiero
+      - org: hiero-ledger
+        repo: hiero-website
+      - org: hiero-ledger
+        repo: hiero
+      - org: hiero-ledger
         repo: awesome-contributions
 
 
