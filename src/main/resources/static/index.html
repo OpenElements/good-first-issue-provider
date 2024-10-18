@@ -50,7 +50,7 @@
 
 
   async function fetchIssues() {
-    const response = await fetch('/api/good-first-issues');
+    const response = await fetch('/api/v2/issues');
     const issues = await response.json();
     return issues;
   }
