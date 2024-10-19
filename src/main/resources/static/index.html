@@ -60,7 +60,6 @@
   function renderIssues(issues) {
     const list = document.getElementById('issues-list');
     list.innerHTML = ''; // Clear any existing rows
-    console.log(issues)
     issues.sort((a, b) => {
       const orgA = a.repository.org.toLowerCase();
       const orgB = b.repository.org.toLowerCase();
@@ -129,7 +128,6 @@
       loadingElement.classList.add('hidden');
       tableContainer.classList.remove('hidden');
     } catch (error) {
-        console.log(error)
       loadingElement.textContent = 'Failed to load data. Please try again later.' + error;
     }
 
@@ -137,8 +135,7 @@
     document.getElementById('language-filter').addEventListener('change', function() {
       const selectedLabel = this.value;
       const filteredIssues = selectedLabel
-          ? issues.filter(issue => issue.languageTags.some(label => {
-            console.log('comparing' + label + ' with ' + selectedLabel);
+          ? issues.filter(issue => issue.repository.languages.some(label => {
             return label === selectedLabel;
           }))
           : issues;
