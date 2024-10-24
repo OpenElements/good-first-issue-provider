@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
@@ -47,10 +48,10 @@ public class GitHubCache {
                 log.info("Updating cache");
                 final List<RepositoryProperty> repos = properties.getRepositories();
                 repos.forEach(repo -> updateContributors(repo.org(), repo.repo()));
-                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), GOOD_FIRST_ISSUE_LABEL));
-                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), GOOD_FIRST_ISSUE_CANDIDATE_LABEL));
-                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), HACKTOBERFEST_LABEL));
-                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), HELP_WANTED_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), repo.excludeIdentifiers(), GOOD_FIRST_ISSUE_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), repo.excludeIdentifiers(), GOOD_FIRST_ISSUE_CANDIDATE_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(),repo.excludeIdentifiers(), HACKTOBERFEST_LABEL));
+                repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), repo.excludeIdentifiers(), HELP_WANTED_LABEL));
                 log.info("Cache updated. Found {} contributors and {} issues", getContributors().size(), getAllIssues().size());
             } catch (final Exception e) {
                 log.error("Failed to update cache", e);
@@ -70,11 +71,11 @@ public class GitHubCache {
         }
     }
 
-    private void updateIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {
+    private void updateIssues(@NonNull final String org, @NonNull final String repo, @Nullable List<String> excludedIdentifiers, @NonNull final String label) {
         try {
             log.info("Updating issues cache for repo '{}/{}' with label '{}'", org, repo, label);
             final Repository repository = gitHubClient.getRepository(org, repo);
-            final List<Issue> issues = gitHubClient.getIssues(repository, label);
+            final List<Issue> issues = gitHubClient.getIssues(repository, label, excludedIdentifiers);
             log.info("Found {} issues for repo '{}/{}' with label '{}'", issues.size(), org, repo, label);
             this.issuesCache.put(hash(org, repo, label), issues);
         } catch (final Exception e) {

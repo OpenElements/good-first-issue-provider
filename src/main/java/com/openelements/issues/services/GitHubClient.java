@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +96,7 @@ public class GitHubClient {
         return new Repository(org, repo, imageUrl, languageTags);
     }
 
-    public List<Issue> getIssues(@NonNull final Repository repository, @NonNull final String label) {
+    public List<Issue> getIssues(@NonNull final Repository repository, @NonNull final String label, @Nullable List<String> excludedIdentifiers) {
         Objects.requireNonNull(repository, "repository must not be null");
         Objects.requireNonNull(label, "label must not be null");
         final List<Issue> issues = new ArrayList<>();
@@ -161,7 +162,9 @@ public class GitHubClient {
 
 
             final Issue issue = new Issue(title, Integer.valueOf(number).toString(), repository, url, isAssigned, isClosed, labels);
-            issues.add(issue);
+            if (excludedIdentifiers == null || !excludedIdentifiers.contains(issue.identifier())) {
+              issues.add(issue);
+            }
         });
         return Collections.unmodifiableList(issues);
     }
