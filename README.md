@@ -40,3 +40,11 @@ hacktoberfest:
 
 Next to the UI, the application provides a REST API to fetch the good first issues.
 The API is available at `http://localhost:8080/api/good-first-issues`.
+
+## How to use Swagger UI
+
+1. Run the Project (on http://localhost:8080)
+2. add /swagger-ui.html after the port on which your project is running. 
+   for eg. http://localhost:8080/swagger-ui.html
+3. click enter and you will see the Swagger UI.
+
