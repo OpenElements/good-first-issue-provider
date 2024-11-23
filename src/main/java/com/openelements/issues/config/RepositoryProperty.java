@@ -1,9 +1,11 @@
 package com.openelements.issues.config;
 
+import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-public record RepositoryProperty(@NonNull String org, @NonNull String repo) {
+public record RepositoryProperty(@NonNull String org, @NonNull String repo, @Nullable List<String> excludeIdentifiers) {
 
     public RepositoryProperty {
         Objects.requireNonNull(org, "org must not be null");
