@@ -26,73 +26,6 @@ public class ApiEndpoint {
         this.issueCache = Objects.requireNonNull(issueCache, "issueCache must not be null");
     }
 
-    @Deprecated(forRemoval = true)
-    private record OldIssueResponse(@NonNull String title, @NonNull String link, @NonNull String org, @NonNull String repo, @NonNull String imageUrl, @NonNull String identifier, boolean isAssigned, boolean isClosed, @NonNull List<String> labels, @NonNull List<String> languageTags) {
-    }
-
-    /**
-     * @deprecated Use {@link #getIssues(Boolean, Boolean, Set, Set, Set)} instead
-     * @return Set of good first issues
-     */
-    @Deprecated(forRemoval = true)
-    @GetMapping("/api/hacktoberfest-issues")
-    public Set<OldIssueResponse> getHacktoberfestIssuesOld() {
-        log.warn("DEPRECATED API CALLED: Getting Hacktoberfest issues");
-        return issueCache.getIssues(LabelConstants.HACKTOBERFEST_LABEL).stream()
-                .map(issue -> new OldIssueResponse(issue.title(), issue.link(), issue.repository().org(), issue.repository().name(), issue.repository().imageUrl(), issue.identifier(), issue.isAssigned(), issue.isClosed(), issue.labels(), issue.repository().languages()))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    /**
-     * @deprecated Use {@link #getContributors()} instead
-     * @return
-     */
-    @Deprecated(forRemoval = true)
-    @GetMapping("/api/contributors")
-    public Set<Contributor> getContributorsOld() {
-        log.warn("DEPRECATED API CALLED: Getting Contributors");
-        return getContributors();
-    }
-
-    /**
-     * @deprecated Use {@link #getIssues(Boolean, Boolean, Set, Set, Set)} instead
-     * @return Set of good first issues
-     */
-    @Deprecated(forRemoval = true)
-    @GetMapping("/api/good-first-issues")
-    public Set<OldIssueResponse> getGoodFirstIssuesOld() {
-        log.info("Getting good first issues");
-        return issueCache.getIssues(LabelConstants.GOOD_FIRST_ISSUE_LABEL).stream()
-                .map(issue -> new OldIssueResponse(issue.title(), issue.link(), issue.repository().org(), issue.repository().name(), issue.repository().imageUrl(), issue.identifier(), issue.isAssigned(), issue.isClosed(), issue.labels(), issue.repository().languages()))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    /**
-     * @deprecated Use {@link #getIssues(Boolean, Boolean, Set, Set, Set)} instead
-     * @return Set of good first issues
-     */
-    @Deprecated(forRemoval = true)
-    @GetMapping("/api/good-first-issue-candidates")
-    public Set<OldIssueResponse> getGoodFirstIssuesCandidatesOld() {
-        log.info("Getting good first issue candidates");
-        return issueCache.getIssues(LabelConstants.GOOD_FIRST_ISSUE_CANDIDATE_LABEL).stream()
-                .map(issue -> new OldIssueResponse(issue.title(), issue.link(), issue.repository().org(), issue.repository().name(), issue.repository().imageUrl(), issue.identifier(), issue.isAssigned(), issue.isClosed(), issue.labels(), issue.repository().languages()))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    /**
-     * @deprecated Use {@link #getIssues(Boolean, Boolean, Set, Set, Set)} instead
-     * @return Set of good first issues
-     */
-    @Deprecated(forRemoval = true)
-    @GetMapping("/api/help-wanted-issues")
-    public Set<OldIssueResponse> getHelpWantedIssuesOld() {
-        log.info("Getting help wanted issues");
-        return issueCache.getIssues(LabelConstants.HELP_WANTED_LABEL).stream()
-                .map(issue -> new OldIssueResponse(issue.title(), issue.link(), issue.repository().org(), issue.repository().name(), issue.repository().imageUrl(), issue.identifier(), issue.isAssigned(), issue.isClosed(), issue.labels(), issue.repository().languages()))
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
     @GetMapping("/api/v2/contributors")
     public Set<Contributor> getContributors() {
         log.info("Getting contributors");
@@ -100,7 +33,11 @@ public class ApiEndpoint {
     }
 
     @GetMapping("/api/v2/issues")
-    public Set<Issue> getIssues(@PathVariable(required = false) Boolean isAssigned, @PathVariable(required = false) Boolean isClosed, @PathVariable(required = false) Set<String> filteredLabels, @PathVariable(required = false) Set<String> excludedLabels, @PathVariable(required = false) Set<String> filteredLanguages) {
+    public Set<Issue> getIssues(@PathVariable(name = "isAssigned", required = false) Boolean isAssigned,
+                                @PathVariable(name = "isClosed",required = false) Boolean isClosed,
+                                @PathVariable(name = "filteredLabels",required = false) Set<String> filteredLabels,
+                                @PathVariable(name = "excludedLabels",required = false) Set<String> excludedLabels,
+                                @PathVariable(name = "filteredLanguages",required = false) Set<String> filteredLanguages) {
         log.info("Getting good first issues");
         return issueCache.getAllIssues().stream()
                 .filter(issue -> isAssigned == null || issue.isAssigned() == isAssigned)

@@ -36,7 +36,8 @@
   function populateLanguageFilter(issues) {
     var uniqueLanguages = new Set();
     issues.forEach(issue => {
-      issue.languageTags.forEach(language => uniqueLanguages.add(language));
+      issue.repository.languages
+          .forEach(language => uniqueLanguages.add(language));
     });
     const labelFilter = document.getElementById('language-filter');
     labelFilter.innerHTML = '<option value="">All Languages</option>'; // Reset options
@@ -59,15 +60,13 @@
   function renderIssues(issues) {
     const list = document.getElementById('issues-list');
     list.innerHTML = ''; // Clear any existing rows
-
     issues.sort((a, b) => {
-      const orgA = a.org.toLowerCase();
-      const orgB = b.org.toLowerCase();
-      const repoA = a.repo.toLowerCase();
-      const repoB = b.repo.toLowerCase();
-      const identifierA = a.identifier.toLowerCase();
-      const identifierB = b.identifier.toLowerCase();
-
+      const orgA = a.repository.org.toLowerCase();
+      const orgB = b.repository.org.toLowerCase();
+      const repoA = a.repository.name.toLowerCase();
+      const repoB = b.repository.name.toLowerCase();
+      const identifierA = a.identifier;
+      const identifierB = b.identifier;
       // Compare by organization
       if (orgA < orgB) return -1;
       if (orgA > orgB) return 1;
@@ -97,15 +96,15 @@
 
       listItem.innerHTML = `
                      <div class="flex min-w-0 gap-x-4">
-                        <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="${issue.imageUrl}" alt="">
+                        <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="${issue.repository.imageUrl}" alt="">
                         <div class="min-w-0 flex-auto">
                             <p class="text-sm font-semibold leading-6 text-gray-900">${issue.title}</p>
-                            <p class="mt-1 truncate text-xs leading-5 text-gray-500"><a href="https://github.com/${issue.org}/${issue.repo}" class="text-blue-600 hover:underline" target="_blank">${issue.repo}</a></p>
+                            <p class="mt-1 truncate text-xs leading-5 text-gray-500"><a href="https://github.com/${issue.repository.org}/${issue.repository.name}" class="text-blue-600 hover:underline" target="_blank">${issue.repository.name}</a></p>
                         </div>
                     </div>
                     <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
                         <p class="text-sm leading-6 text-gray-900">
-                        ${issue.languageTags.map(tag => `
+                        ${issue.repository.languages.map(tag => `
                         <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">${tag}</span>
                         `).join('')}
                         </p>
@@ -129,15 +128,14 @@
       loadingElement.classList.add('hidden');
       tableContainer.classList.remove('hidden');
     } catch (error) {
-      loadingElement.textContent = 'Failed to load data. Please try again later.';
+      loadingElement.textContent = 'Failed to load data. Please try again later.' + error;
     }
 
     // Event listener to filter issues by selected label
     document.getElementById('language-filter').addEventListener('change', function() {
       const selectedLabel = this.value;
       const filteredIssues = selectedLabel
-          ? issues.filter(issue => issue.languageTags.some(label => {
-            console.log('comparing' + label + ' with ' + selectedLabel);
+          ? issues.filter(issue => issue.repository.languages.some(label => {
             return label === selectedLabel;
           }))
           : issues;
