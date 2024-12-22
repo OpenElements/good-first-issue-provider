@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @RestController
 @CrossOrigin
 public class ApiEndpoint {
@@ -22,12 +25,16 @@ public class ApiEndpoint {
 
     private final GitHubCache issueCache;
 
-    public ApiEndpoint(@NonNull final GitHubCache issueCache) {
-        this.issueCache = Objects.requireNonNull(issueCache, "issueCache must not be null");
+    public ApiEndpoint(final GitHubCache issueCache) {
+        this.issueCache = issueCache;
     }
 
-    @Deprecated(forRemoval = true)
-    private record OldIssueResponse(@NonNull String title, @NonNull String link, @NonNull String org, @NonNull String repo, @NonNull String imageUrl, @NonNull String identifier, boolean isAssigned, boolean isClosed, @NonNull List<String> labels, @NonNull List<String> languageTags) {
+    @GetMapping("/api/v2/contributors")
+    public Set<Contributor> getContributors() {
+        log.info("Getting contributors with additional metadata");
+        return issueCache.getContributors().stream()
+                .peek(contributor -> log.debug("Contributor: {}", contributor))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     /**

@@ -28,8 +28,10 @@
 
   async function fetchContributors() {
     const response = await fetch('/api/v2/contributors');
-    const contributors = await response.json();
-    return contributors;
+    if (!response.ok) {
+      throw new Error('Failed to fetch contributors');
+    }
+    return response.json();
   }
 
   // Function to render issues into the table
@@ -41,9 +43,10 @@
       const listItem = document.createElement('li');
       listItem.classList.add('flex', 'justify-center');
       listItem.innerHTML = `<a target="_blank" href="https://github.com/${contributor.userName}">
-                                <div class="flex flex-col justify-center">
+                                <div class="flex flex-col justify-center items-center">
                                     <img class="rounded-full h-32 w-32 bg-slate-600 p-0.5 grow" src="${contributor.avatarUrl}" alt="Avatar of ${contributor.userName}">
-                                    <span class="text-center">${contributor.userName}</span>
+                                    <span class="text-center mt-2 font-medium">${contributor.userName}</span>
+                                    <span class="text-center text-sm text-gray-500">${contributor.contributions} Contributions</span>
                                 </div>
                             </a>
 `;
@@ -55,14 +58,14 @@
   document.addEventListener('DOMContentLoaded', async () => {
     const loadingElement = document.getElementById('loading');
     const listElement = document.getElementById('contributors-list');
-    let contributors = [];
     try {
-      contributors = await fetchContributors();
+      const contributors = await fetchContributors();
       renderContributors(contributors);
       loadingElement.classList.add('hidden');
       listElement.classList.remove('hidden');
     } catch (error) {
       loadingElement.textContent = 'Failed to load data. Please try again later.';
+      console.error(error);
     }
   });
 </script>
