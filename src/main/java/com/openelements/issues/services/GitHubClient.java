@@ -35,12 +35,12 @@ public class GitHubClient {
         Builder builder = RestClient.builder()
                 .baseUrl(GITHUB_API_URL)
                 .defaultHeader(HTTP_ACCEPT, GITHUB_V_3_JSON);
-        final String githubToken = System.getenv(GITHUB_TOKEN);
-        if(githubToken != null) {
-            log.info("Using {} environment variable for GitHub API authentication", GITHUB_TOKEN);
-            builder = builder.defaultHeader("Authorization", "token " + githubToken);
+        final String githubToken = System.getenv("GITHUB_TOKEN");
+        if (githubToken != null && !githubToken.isBlank()) {
+            log.info("Using GitHub token for API authentication");
+            builder = builder.defaultHeader("Authorization", "Bearer " + githubToken);
         } else {
-            log.warn("{} environment variable found, GitHub API rate limits will apply", GITHUB_TOKEN);
+            log.warn("No GitHub token found; API rate limits will apply (60 req/hour)");
         }
         restClient = builder.build();
         objectMapper = new ObjectMapper();
