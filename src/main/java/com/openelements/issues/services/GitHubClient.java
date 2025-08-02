@@ -31,6 +31,10 @@ public class GitHubClient {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Default constructor that initializes the GitHub client with the base URL and headers.
+     * It retrieves the GitHub token from the environment variable GITHUB_TOKEN.
+     */
     public GitHubClient() {
         Builder builder = RestClient.builder()
                 .baseUrl(GITHUB_API_URL)
