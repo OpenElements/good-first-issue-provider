@@ -13,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -22,7 +23,6 @@ import org.springframework.web.client.RestClient.Builder;
 public class GitHubClient {
 
     private final static Logger log = LoggerFactory.getLogger(GitHubClient.class);
-    public static final String GITHUB_TOKEN = "GITHUB_TOKEN";
     public static final String GITHUB_API_URL = "https://api.github.com";
     public static final String HTTP_ACCEPT = "Accept";
     public static final String GITHUB_V_3_JSON = "application/vnd.github.v3+json";
@@ -35,11 +35,10 @@ public class GitHubClient {
      * Default constructor that initializes the GitHub client with the base URL and headers.
      * It retrieves the GitHub token from the environment variable GITHUB_TOKEN.
      */
-    public GitHubClient() {
+    public GitHubClient(@Value("${github.token}") String githubToken) {
         Builder builder = RestClient.builder()
                 .baseUrl(GITHUB_API_URL)
                 .defaultHeader(HTTP_ACCEPT, GITHUB_V_3_JSON);
-        final String githubToken = System.getenv("GITHUB_TOKEN");
         if (githubToken != null && !githubToken.isBlank()) {
             log.info("Using GitHub token for API authentication");
             builder = builder.defaultHeader("Authorization", "Bearer " + githubToken);
