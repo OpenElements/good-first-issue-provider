@@ -8,3 +8,7 @@ hacktoberfest:
         repo: hedera-solo-action
 
 
+github:
+  token: ${GITHUB_TOKEN:}
+
+
