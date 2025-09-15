@@ -2,10 +2,10 @@ server:
   port=${PORT:8080}
 hacktoberfest:
     repositories:
-      - org: OpenElements
-        repo: hedera-enterprise
-      - org: OpenElements
-        repo: hedera-solo-action
+      - org: ClyCites
+        repo: ClyCites-Frontend
+      - org: ClyCites
+        repo: ClyCites-api
 
 
 github:
