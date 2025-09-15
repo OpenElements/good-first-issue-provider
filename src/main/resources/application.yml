@@ -7,7 +7,6 @@ hacktoberfest:
       - org: ClyCites
         repo: ClyCites-api
 
-
 github:
   token: ${GITHUB_TOKEN:}
 
