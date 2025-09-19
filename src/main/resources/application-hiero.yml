@@ -2,45 +2,60 @@ server:
   port=${PORT:8080}
 hacktoberfest:
     repositories:
-      - org: hashgraph
-        repo: hedera-services
-      - org: hashgraph
-        repo: hedera-json-rpc-relay
-      - org: hashgraph
-        repo: hedera-local-node
-      - org: hashgraph
-        repo: hedera-mirror-node
-      - org: hashgraph
-        repo: hedera-sdk-js
-      - org: hashgraph
-        repo: hedera-sdk-swift
-      - org: hashgraph
-        repo: hedera-sdk-rust
-      - org: hashgraph
-        repo: hedera-sdk-java
-      - org: hashgraph
-        repo: hedera-sdk-go
-      - org: hashgraph
-        repo: hedera-sdk-cpp
-      - org: hashgraph
+      - org: hiero-ledger
+        repo: hiero-solo-action
+      - org: hiero-ledger
+        repo: hiero-sdk-tck
+      - org: hiero-ledger
+        repo: hiero-consensus-node
+      - org: hiero-ledger
+        repo: hiero-sdk-js
+      - org: hiero-ledger
         repo: solo
-      - org: hashgraph
-        repo: pbj
-      - org: hashgraph
-        repo: docs
-      - org: hashgraph
-        repo: hedera-mirror-node-explorer
-      - org: hashgraph
-        repo: hedera-sdk-tck
-      - org: OpenElements
-        repo: hedera-enterprise
-      - org: OpenElements
-        repo: hedera-solo-action
+      - org: hiero-ledger
+        repo: hiero-block-node
+      - org: hiero-ledger
+        repo: hiero-mirror-node
+      - org: hiero-ledger
+        repo: hiero-json-rpc-relay
+      - org: hiero-ledger
+        repo: hiero-gradle-conventions
+      - org: hiero-ledger
+        repo: hiero-improvement-proposals
+      - org: hiero-ledger
+        repo: governance
+      - org: hiero-ledger
+        repo: hiero-mirror-node-explorer
       - org: hiero-ledger
         repo: hiero-website
       - org: hiero-ledger
-        repo: hiero
+        repo: hiero-sdk-swift
+      - org: hiero-ledger
+        repo: hiero-sdk-cpp
+      - org: hiero-ledger
+        repo: hiero-did-sdk-js
+      - org: hiero-ledger
+        repo: hiero-sdk-go
+      - org: hiero-ledger
+        repo: hiero-sdk-rust
+      - org: hiero-ledger
+        repo: hiero-sdk-java
+      - org: hiero-ledger
+        repo: hiero-local-node
+      - org: hiero-ledger
+        repo: tsc
+      - org: hiero-ledger
+        repo: sdk-collaboration-hub
+      - org: hiero-ledger
+        repo: hiero-sdk-python
+      - org: hiero-ledger
+        repo: hiero-hederium
       - org: hiero-ledger
         repo: awesome-contributions
-
+      - org: hiero-ledger
+        repo: hiero-did-sdk-python
+      - org: hiero-ledger
+        repo: hiero
+      - org: hiero-ledger
+        repo: hiero-docs
 
