@@ -10,3 +10,10 @@ hacktoberfest:
 
 github:
   token: ${GITHUB_TOKEN:}
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - prometheus
