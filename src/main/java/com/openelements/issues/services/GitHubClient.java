@@ -96,7 +96,10 @@ public class GitHubClient {
                 languageTags.add(fieldName);
             }
         });
-        return new Repository(org, repo, imageUrl, languageTags);
+        final long stars = repoJsonNode.get("stargazers_count").asLong();
+
+
+        return new Repository(org, repo, imageUrl, languageTags, stars);
     }
 
     public List<Issue> getIssues(@NonNull final Repository repository, @NonNull final String label, @Nullable List<String> excludedIdentifiers) {

@@ -11,6 +11,8 @@ import com.openelements.issues.data.Contributor;
 import com.openelements.issues.data.Issue;
 import com.openelements.issues.data.Repository;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,16 +39,20 @@ public class GitHubCache {
 
     private final Map<String, List<Contributor>> contributorsCache;
 
+    private final Set<Repository> repositoriesCache;
+
     public GitHubCache(@NonNull final IssueServiceProperties properties, final GitHubClient gitHubClient) {
         Objects.requireNonNull(properties, "properties must not be null");
         this.gitHubClient = Objects.requireNonNull(gitHubClient, "gitHubClient must not be null");
         this.issuesCache = new ConcurrentHashMap<>();
         this.contributorsCache = new ConcurrentHashMap<>();
+        this.repositoriesCache = Collections.synchronizedSet(new HashSet<>());
         log.info("Cache will be updated all {} seconds", CACHE_DURATION.getSeconds());
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 log.info("Updating cache");
                 final List<RepositoryProperty> repos = properties.getRepositories();
+                repos.forEach(repo -> updateRepo(repo.org(), repo.repo()));
                 repos.forEach(repo -> updateContributors(repo.org(), repo.repo()));
                 repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), repo.excludeIdentifiers(), GOOD_FIRST_ISSUE_LABEL));
                 repos.forEach(repo -> updateIssues(repo.org(), repo.repo(), repo.excludeIdentifiers(), GOOD_FIRST_ISSUE_CANDIDATE_LABEL));
@@ -57,6 +63,13 @@ public class GitHubCache {
                 log.error("Failed to update cache", e);
             }
         }, 0, CACHE_DURATION.getSeconds(), TimeUnit.SECONDS);
+    }
+
+    private void updateRepo(@NonNull String org, @NonNull String repo) {
+        Objects.requireNonNull(org, "org must not be null");
+        Objects.requireNonNull(repo, "repo must not be null");
+        final Repository repository = gitHubClient.getRepository(org, repo);
+        this.repositoriesCache.add(repository);
     }
 
     private void updateContributors(@NonNull final String org, @NonNull final String repo) {
@@ -105,6 +118,10 @@ public class GitHubCache {
         return contributorsCache.keySet().stream()
                 .flatMap(key -> contributorsCache.get(key).stream())
                 .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public Set<Repository> getRepositories() {
+        return Collections.unmodifiableSet(repositoriesCache);
     }
 
     public List<Issue> getIssues(@NonNull final String org, @NonNull final String repo, @NonNull final String label) {
