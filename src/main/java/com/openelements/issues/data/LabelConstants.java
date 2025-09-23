@@ -1,4 +1,4 @@
-package com.openelements.issues;
+package com.openelements.issues.data;
 
 public interface LabelConstants {
     String GOOD_FIRST_ISSUE_LABEL = "good first issue";

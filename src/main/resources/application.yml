@@ -1,13 +1,12 @@
 server:
   port=${PORT:8080}
+  forward-headers-strategy=framework
 hacktoberfest:
-    repositories:
-      - org: ClyCites
-        repo: ClyCites-Frontend
-      - org: ClyCites
-        repo: ClyCites-api
+  repositories:
+    - org: ClyCites
+      repo: ClyCites-Frontend
+    - org: ClyCites
+      repo: ClyCites-api
 
 github:
   token: ${GITHUB_TOKEN:}
-
-
